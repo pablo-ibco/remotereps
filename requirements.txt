@@ -1,0 +1,20 @@
+# Django and Core Dependencies
+Django==4.2.7
+celery==5.3.4
+redis==5.0.1
+django-celery-beat==2.5.0
+psycopg2-binary==2.9.9
+python-dotenv==1.0.0
+djangorestframework>=3.14.0
+drf-spectacular>=0.26.5
+
+# Type Checking
+mypy==1.7.1
+django-stubs==4.2.7
+types-redis==4.6.0.20241004
+
+# External Services Required:
+# - Redis server (for Celery broker)
+#   Mac: brew install redis && brew services start redis
+#   Ubuntu: sudo apt-get install redis-server && sudo service redis-server start
+#   Or use Docker: docker run -d -p 6379:6379 redis:alpine 
