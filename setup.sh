@@ -7,7 +7,7 @@ echo "🚀 Starting setup for Budget System..."
 # Check if .env exists, if not create from example
 if [ ! -f .env ]; then
     echo "📝 Creating .env file from env.example..."
-    cp env.example .env
+    cp .env.example .env
     echo "✅ .env file created!"
 else
     echo "✅ .env file already exists"
