@@ -85,11 +85,14 @@ class BrandAPITests(BaseAPITestCase):
         response = self.client.get(url)
         
         self.assert_response_success(response)
-        self.assertIsInstance(response.data, list)
-        self.assertGreater(len(response.data), 0)
+        # Check that response has pagination structure
+        self.assertIn('results', response.data)
+        self.assertIn('count', response.data)
+        self.assertIsInstance(response.data['results'], list)
+        self.assertGreater(len(response.data['results']), 0)
         
         # Check brand data structure
-        brand_data = response.data[0]
+        brand_data = response.data['results'][0]
         self.assertIn('id', brand_data)
         self.assertIn('name', brand_data)
         self.assertIn('daily_budget', brand_data)
@@ -215,11 +218,14 @@ class CampaignAPITests(BaseAPITestCase):
         response = self.client.get(url)
         
         self.assert_response_success(response)
-        self.assertIsInstance(response.data, list)
-        self.assertGreater(len(response.data), 0)
+        # Check that response has pagination structure
+        self.assertIn('results', response.data)
+        self.assertIn('count', response.data)
+        self.assertIsInstance(response.data['results'], list)
+        self.assertGreater(len(response.data['results']), 0)
         
         # Check campaign data structure
-        campaign_data = response.data[0]
+        campaign_data = response.data['results'][0]
         self.assertIn('id', campaign_data)
         self.assertIn('brand', campaign_data)
         self.assertIn('name', campaign_data)
@@ -312,11 +318,14 @@ class SpendAPITests(BaseAPITestCase):
         response = self.client.get(url)
         
         self.assert_response_success(response)
-        self.assertIsInstance(response.data, list)
-        self.assertGreater(len(response.data), 0)
+        # Check that response has pagination structure
+        self.assertIn('results', response.data)
+        self.assertIn('count', response.data)
+        self.assertIsInstance(response.data['results'], list)
+        self.assertGreater(len(response.data['results']), 0)
         
         # Check spend data structure
-        spend_data = response.data[0]
+        spend_data = response.data['results'][0]
         self.assertIn('id', spend_data)
         self.assertIn('campaign', spend_data)
         self.assertIn('amount', spend_data)
@@ -414,11 +423,14 @@ class ScheduleAPITests(BaseAPITestCase):
         response = self.client.get(url)
         
         self.assert_response_success(response)
-        self.assertIsInstance(response.data, list)
-        self.assertGreater(len(response.data), 0)
+        # Check that response has pagination structure
+        self.assertIn('results', response.data)
+        self.assertIn('count', response.data)
+        self.assertIsInstance(response.data['results'], list)
+        self.assertGreater(len(response.data['results']), 0)
         
         # Check schedule data structure
-        schedule_data = response.data[0]
+        schedule_data = response.data['results'][0]
         self.assertIn('id', schedule_data)
         self.assertIn('campaign', schedule_data)
         self.assertIn('day_of_week', schedule_data)
@@ -588,7 +600,7 @@ class IntegrationAPITests(BaseAPITestCase):
         
         # Verify campaign is also deleted (if cascade is configured)
         campaign_list_response = self.client.get(f'{self.base_url}/campaigns/')
-        campaign_ids = [c['id'] for c in campaign_list_response.data]
+        campaign_ids = [c['id'] for c in campaign_list_response.data['results']]
         self.assertNotIn(campaign_id, campaign_ids)
 
     def test_filtering_and_search(self):

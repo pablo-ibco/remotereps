@@ -10,6 +10,9 @@ from typing import Optional, List, Any
 import uuid
 from campaigns.models import Campaign
 from datetime import date
+from django.db import transaction
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 
 class SpendType(models.TextChoices):
@@ -83,15 +86,9 @@ class Spend(models.Model):
     
     def save(self, *args: Any, **kwargs: Any) -> None:
         """Override save to update campaign totals."""
-        is_new = self.pk is None
-        
-        # Save the spend record
-        super().save(*args, **kwargs)
-        
-        # Update campaign totals if this is a new record
-        if is_new:
-            self.campaign.add_spend(self.amount)
-    
+        with transaction.atomic():
+            super().save(*args, **kwargs)
+
     @classmethod
     def get_daily_spend_for_campaign(cls, campaign: Campaign, date: date) -> Decimal:
         """Get total daily spend for a campaign on a specific date."""
@@ -102,14 +99,11 @@ class Spend(models.Model):
         ).aggregate(
             total=models.Sum('amount')
         )['total']
-        
         return total or Decimal('0.00')
-    
+
     @classmethod
     def get_monthly_spend_for_campaign(cls, campaign: Campaign, year: int, month: int) -> Decimal:
         """Get total monthly spend for a campaign in a specific month."""
-        from django.db.models import Q
-        
         total = cls.objects.filter(
             campaign=campaign,
             spend_date__year=year,
@@ -118,17 +112,23 @@ class Spend(models.Model):
         ).aggregate(
             total=models.Sum('amount')
         )['total']
-        
         return total or Decimal('0.00')
-    
+
     @classmethod
     def get_daily_spend_for_brand(cls, brand_id: uuid.UUID) -> Decimal:
         from campaigns.models import Campaign
         campaigns = Campaign.objects.filter(brand_id=brand_id)
         return sum((Decimal(c.daily_spend) for c in campaigns), Decimal('0.00'))
-    
+
     @classmethod
     def get_monthly_spend_for_brand(cls, brand_id: uuid.UUID) -> Decimal:
         from campaigns.models import Campaign
         campaigns = Campaign.objects.filter(brand_id=brand_id)
         return sum((Decimal(c.monthly_spend) for c in campaigns), Decimal('0.00'))
+
+# --- Sinal para atualizar os totais do Campaign ---
+@receiver(post_save, sender=Spend)
+def update_campaign_totals(sender: Any, instance: Spend, created: bool, **kwargs: Any) -> None:
+    if created:
+        campaign = instance.campaign
+        campaign.add_spend(instance.amount)

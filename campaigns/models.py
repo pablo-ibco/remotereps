@@ -9,6 +9,8 @@ from django.db import models
 from django.core.validators import MinValueValidator
 import uuid
 from brands.models import Brand
+from django.db.models import F
+from django.utils import timezone
 
 
 class CampaignStatus(models.TextChoices):
@@ -155,12 +157,14 @@ class Campaign(models.Model):
     def add_spend(self, amount: Decimal) -> None:
         """Add spend to the campaign and update totals."""
         from decimal import Decimal
-        
+        from django.utils import timezone
         if amount <= Decimal('0.00'):
             raise ValueError("Spend amount must be positive")
         
+        # Update the instance directly
         self.daily_spend += amount
         self.monthly_spend += amount
+        self.updated_at = timezone.now()
         self.save(update_fields=['daily_spend', 'monthly_spend', 'updated_at'])
     
     def reset_daily_spend(self) -> None:

@@ -55,14 +55,15 @@ class SpendingService:
             spend_date = timezone.now().date()
         
         with transaction.atomic():
-            # Create the spend record
-            spend = Spend.objects.create(
+            # Create the spend record using the model instance to trigger custom save
+            spend = Spend(
                 campaign=campaign,
                 amount=amount,
                 spend_date=spend_date,
                 spend_type=SpendType.DAILY,
                 description=description
             )
+            spend.save()
             
             # Check budget limits after adding spend
             self.check_budget_limits(campaign)
