@@ -3,6 +3,8 @@
 ## Overview
 A comprehensive backend system for ad agencies to manage daily/monthly budgets, campaign control, and dayparting. Built with Django, Celery, PostgreSQL, and Redis. The system automatically tracks ad spend, enforces budget rules, resets budgets, and respects campaign schedules.
 
+For usage instructions, please refer to [USAGE.md](./USAGE.md)
+
 ---
 
 ## Table of Contents
